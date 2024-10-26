@@ -9,7 +9,7 @@ int ALLOC_COUNTER = 0;
 #define ASSERT(condition, format, ...) \
     do { \
         if (!(condition)) { \
-            printf("Assertion failed: " format "\n", ##__VA_ARGS__); \
+            printf(format, ##__VA_ARGS__); \
             exit(1); \
         } \
     } while (0)
@@ -19,7 +19,7 @@ int ALLOC_COUNTER = 0;
     do { \
         (ptr) = (type *)malloc((size) * sizeof(type)); \
         if ((ptr) == NULL) { \
-            printf("Memory allocation failed\n"); \
+            printf("Error: Memory allocation failed.\n"); \
             exit(1); \
         } \
         ALLOC_COUNTER++; \

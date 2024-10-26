@@ -41,7 +41,8 @@ int main(void) {
     input = softmax(input);
     FLOAT error = cross_entropy(input, target);
 
-    ASSERT(abs(error - 0.438375) < 1e-6,
+    ASSERT(
+        abs(error - 0.438375) < 1e-6,
         "Expected cross entropy error %f, but got %f",
         0.438375, error
     );

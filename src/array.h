@@ -36,20 +36,13 @@ void init_matrix(Matrix *mat, int x_dim, int y_dim) {
     mat->y_dim = y_dim;
     MALLOC(mat->data, FLOAT, x_dim * y_dim);
     memset(mat->data, 0.0f, x_dim * y_dim * sizeof(FLOAT));
-    ASSERT(
-        mat->data != NULL, 
-        "Memory allocation failed for Matrix."
-    );
 }
 
 
 void init_vector(Vector *vec, int x_dim) {
     vec->x_dim = x_dim;
     MALLOC(vec->data, FLOAT, x_dim);
-    ASSERT(
-        vec->data != NULL,
-        "Memory allocation failed for Vector."
-    );
+    memset(vec->data, 0.0f, x_dim * sizeof(FLOAT));
 }
 
 

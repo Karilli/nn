@@ -40,9 +40,9 @@ Vector softmax(Vector vec) {
     init_vector(&new, vec.x_dim);
     FLOAT sm = 0.0f;
     for (int i=0; i< vec.x_dim; i++) {
-        FLOAT x = exp(get_vector(vec, i));
-        set_vector(new, i, x);
-        sm += x;
+        FLOAT val = exp(get_vector(vec, i));
+        set_vector(new, i, val);
+        sm += val;
     }
     for (int i=0; i< vec.x_dim; i++) {
         set_vector(new, i, get_vector(new, i) / sm);
