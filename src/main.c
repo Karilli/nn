@@ -13,6 +13,12 @@ int main(void) {
 
     Parameters layer1;
     Parameters layer2;
-    
+
+    delete_matrix(inputs);
+    ASSERT(
+        ALLOC_COUNTER == 0,
+        "Expected ALLOC_COUNTER to be 0, but got %d.",
+        ALLOC_COUNTER
+    );
     return 0;
 }

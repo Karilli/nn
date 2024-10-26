@@ -12,13 +12,14 @@
 
 
 int num_of_lines(FILE *file, int cols) {
-    char *line=malloc(cols*4*sizeof(line));
+    char *line;
+    MALLOC(line, char, cols*4);
     int line_count = 0;
     while (fgets(line, cols*4, file)) {
         line_count++;
     }
     fseek(file, 0, SEEK_SET);
-    free(line);
+    FREE(line);
     return line_count;
 }
 
