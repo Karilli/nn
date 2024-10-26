@@ -1,6 +1,6 @@
 #include "nn.h"
 #include "array.h"
-#include "assert.h"
+#include "macro_utils.h"
 
 #include "math.h"
 
@@ -43,6 +43,15 @@ int main(void) {
     ASSERT(abs(error - 0.438375) < 1e-6,
         "Expected cross entropy error %f, but got %f",
         0.438375, error
+    );
+
+    delete_vector(target);
+    delete_params(layer1);
+    delete_params(layer2);
+    ASSERT(
+        ALLOC_COUNTER == 0,
+        "Expected ALLOC_COUNTER to be 0, but got %d.",
+        ALLOC_COUNTER
     );
     return 0;
 }

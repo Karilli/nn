@@ -3,7 +3,7 @@
 #define CSV_H
 
 #include "array.h"
-#include "assert.h"
+#include "macro_utils.h"
 
 
 #include <string.h>
@@ -35,12 +35,12 @@ int read_matrix(Matrix *mat, char* filepath, int cols){
     int curr_value = 0;
     while ((c = fgetc(file)) != EOF) {
         if (c == ',') {
-            set_matrix(mat, x, y, (FLOAT) curr_value);
+            set_matrix(*mat, x, y, (FLOAT) curr_value);
             curr_value = 0;
             x++;
         } else if (c == '\n') {
             ASSERT(x == cols - 1, "Expected %d number of columns, found %d.", cols, x+1);
-            set_matrix(mat, x, y, (FLOAT) curr_value);
+            set_matrix(*mat, x, y, (FLOAT) curr_value);
             curr_value = 0;
             x = 0;
             y++;

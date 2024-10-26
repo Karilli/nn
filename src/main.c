@@ -1,7 +1,7 @@
 #include "csv.h"
 #include "array.h"
 #include "nn.h"
-#include "assert.h"
+#include "macro_utils.h"
 
 #include <stdlib.h>
 #include "math.h"

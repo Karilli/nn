@@ -23,9 +23,15 @@ void init_params(Parameters *params, int x_dim, int y_dim){
     srand(time(NULL)); 
     for(int i = 0; i < params->parameters.x_dim; i++) {
         for(int j = 0; j < params->parameters.y_dim; j++) {
-            set_matrix(&(params->parameters), i, j, (float) rand() / RAND_MAX);
+            set_matrix(params->parameters, i, j, (float) rand() / RAND_MAX);
         }
     }
+}
+
+
+void delete_params(Parameters parameters) {
+    delete_matrix(parameters.parameters);
+    delete_matrix(parameters.gradients);
 }
 
 
@@ -34,13 +40,12 @@ Vector softmax(Vector vec) {
     init_vector(&new, vec.x_dim);
     FLOAT sm = 0.0f;
     for (int i=0; i< vec.x_dim; i++) {
-        set_vector(&new, i, exp(get_vector(vec, i)));
+        FLOAT x = exp(get_vector(vec, i));
+        set_vector(new, i, x);
+        sm += x;
     }
     for (int i=0; i< vec.x_dim; i++) {
-        sm += get_vector(new, i);
-    } 
-    for (int i=0; i< vec.x_dim; i++) {
-        set_vector(&new, i, get_vector(new, i) / sm);
+        set_vector(new, i, get_vector(new, i) / sm);
     }   
     delete_vector(vec);
     return new;
@@ -48,12 +53,9 @@ Vector softmax(Vector vec) {
 
 
 FLOAT cross_entropy(Vector vec, Vector target) {
-    Vector new;
-    init_vector(&new, vec.x_dim);
-
     FLOAT error = 0;
     for (int i=0; i< vec.x_dim; i++) {
-        error += - log(get_vector(vec, i)) * get_vector(target, i);
+        error -= log(get_vector(vec, i)) * get_vector(target, i);
     }
     delete_vector(vec);
     return error;
@@ -66,7 +68,7 @@ Vector relu(Vector vec) {
 
     for (int i=0; i< vec.x_dim; i++) {
         FLOAT x = get_vector(vec, i);
-        set_vector(&new, i, (0 <= x) ? x : 0);
+        set_vector(new, i, (0 <= x) ? x : 0);
     } 
 
     delete_vector(vec);
@@ -86,7 +88,7 @@ Vector matmul(Parameters parameters, Vector vec) {
         for (int x=0; x < parameters.parameters.x_dim; x++) {
             sm += get_matrix(parameters.parameters, x, y) * get_vector(vec, x);
         }
-        set_vector(&new, y, sm);
+        set_vector(new, y, sm);
     }
     delete_vector(vec);
     return new;

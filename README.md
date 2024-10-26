@@ -1,4 +1,4 @@
-514554 Jaroslav Pospíšek --- put your UČOs (and names) on this line (no exact format required)
+Jaroslav Pospíšek (514554) and Josef Karas (511737) --- put your UČOs (and names) on this line (no exact format required)
 ## PV021 project -- Deep Learning from Scratch
 
 ### DEADLINE
