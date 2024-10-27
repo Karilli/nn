@@ -11,27 +11,27 @@
 #include "math.h"
 
 
-typedef struct Parameters {
+typedef struct Layer {
     Matrix parameters;
     Matrix gradients;
-} Parameters;
+} Layer;
 
 
-void init_params(Parameters *params, int x_dim, int y_dim){
-    init_matrix(&(params->parameters), x_dim, y_dim);
-    init_matrix(&(params->gradients), x_dim, y_dim);
+void init_layer(Layer *layer, int x_dim, int y_dim){
+    init_matrix(&(layer->parameters), x_dim, y_dim);
+    init_matrix(&(layer->gradients), x_dim, y_dim);
     srand(time(NULL));
-    for(int y = 0; y < params->parameters.y_dim; y++) {
-        for(int x = 0; x < params->parameters.x_dim; x++) {    
-            set_matrix(params->parameters, x, y, (float) rand() / RAND_MAX);
+    for(int y = 0; y < layer->parameters.y_dim; y++) {
+        for(int x = 0; x < layer->parameters.x_dim; x++) {    
+            set_matrix(layer->parameters, x, y, (float) rand() / RAND_MAX);
         }
     }
 }
 
 
-void delete_params(Parameters parameters) {
-    delete_matrix(parameters.parameters);
-    delete_matrix(parameters.gradients);
+void delete_layer(Layer layer) {
+    delete_matrix(layer.parameters);
+    delete_matrix(layer.gradients);
 }
 
 
@@ -76,17 +76,17 @@ Vector relu(Vector vec) {
 }
 
 
-Vector matmul(Parameters parameters, Vector vec) {
+Vector matmul(Matrix mat, Vector vec) {
     Vector new;
-    init_vector(&new, parameters.parameters.y_dim);
-    ASSERT(vec.x_dim == parameters.parameters.x_dim,
+    init_vector(&new, mat.y_dim);
+    ASSERT(vec.x_dim == mat.x_dim,
         "Non-matching matrix sizes %d x %d, %d",
-        parameters.parameters.x_dim, parameters.parameters.y_dim, vec.x_dim
+        mat.x_dim, mat.y_dim, vec.x_dim
     );
-    for (int y=0; y < parameters.parameters.y_dim; y++) {
+    for (int y=0; y < mat.y_dim; y++) {
         FLOAT sm = 0.0f;
-        for (int x=0; x < parameters.parameters.x_dim; x++) {
-            sm += get_matrix(parameters.parameters, x, y) * get_vector(vec, x);
+        for (int x=0; x < mat.x_dim; x++) {
+            sm += get_matrix(mat, x, y) * get_vector(vec, x);
         }
         set_vector(new, y, sm);
     }

@@ -1,9 +1,7 @@
 #include "nn.h"
 #include "array.h"
 #include "macro_utils.h"
-
 #include "math.h"
-
 
 int main(void) {
     Vector input;
@@ -16,8 +14,8 @@ int main(void) {
     target.data[0] = 0;
     target.data[1] = 1;
 
-    Parameters layer1;
-    init_params(&layer1, 2, 3);
+    Layer layer1;
+    init_layer(&layer1, 2, 3);
     layer1.parameters.data[0] = 0.5;
     layer1.parameters.data[1] = 0.3;
     layer1.parameters.data[2] = 0.2;
@@ -25,8 +23,8 @@ int main(void) {
     layer1.parameters.data[4] = 0.7;
     layer1.parameters.data[5] = 0.9;
 
-    Parameters layer2;
-    init_params(&layer2, 3, 2);
+    Layer layer2;
+    init_layer(&layer2, 3, 2);
     layer2.parameters.data[0] = 0.5;
     layer2.parameters.data[1] = 0.3;
     layer2.parameters.data[2] = 0.2;
@@ -34,9 +32,9 @@ int main(void) {
     layer2.parameters.data[4] = 0.7;
     layer2.parameters.data[5] = 0.9;
 
-    input = matmul(layer1, input);
+    input = matmul(layer1.parameters, input);
     input = relu(input);
-    input = matmul(layer2, input);
+    input = matmul(layer2.parameters, input);
     input = relu(input);
     input = softmax(input);
     FLOAT error = cross_entropy(input, target);
@@ -48,8 +46,8 @@ int main(void) {
     );
 
     delete_vector(target);
-    delete_params(layer1);
-    delete_params(layer2);
+    delete_layer(layer1);
+    delete_layer(layer2);
     ASSERT(
         ALLOC_COUNTER == 0,
         "Expected ALLOC_COUNTER to be 0, but got %d.",

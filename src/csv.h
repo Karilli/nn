@@ -12,6 +12,7 @@
 
 
 int num_of_lines(FILE *file, int cols) {
+    // Assume integers i range 0-255
     char *line;
     MALLOC(line, char, cols*4);
     int line_count = 0;
@@ -24,7 +25,7 @@ int num_of_lines(FILE *file, int cols) {
 }
 
 
-int read_matrix(Matrix *mat, char* filepath, int cols){
+int read_matrix(Matrix *mat, char* filepath, int cols) {
     FILE *file = fopen(filepath, "r");
     ASSERT(file != NULL, "Could not open file %s.", filepath);
 
