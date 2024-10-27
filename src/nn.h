@@ -20,10 +20,10 @@ typedef struct Parameters {
 void init_params(Parameters *params, int x_dim, int y_dim){
     init_matrix(&(params->parameters), x_dim, y_dim);
     init_matrix(&(params->gradients), x_dim, y_dim);
-    srand(time(NULL)); 
-    for(int i = 0; i < params->parameters.x_dim; i++) {
-        for(int j = 0; j < params->parameters.y_dim; j++) {
-            set_matrix(params->parameters, i, j, (float) rand() / RAND_MAX);
+    srand(time(NULL));
+    for(int y = 0; y < params->parameters.y_dim; y++) {
+        for(int x = 0; x < params->parameters.x_dim; x++) {    
+            set_matrix(params->parameters, x, y, (float) rand() / RAND_MAX);
         }
     }
 }
@@ -39,13 +39,13 @@ Vector softmax(Vector vec) {
     Vector new;
     init_vector(&new, vec.x_dim);
     FLOAT sm = 0.0f;
-    for (int i=0; i< vec.x_dim; i++) {
-        FLOAT val = exp(get_vector(vec, i));
-        set_vector(new, i, val);
+    for (int x = 0; x < vec.x_dim; x++) {
+        FLOAT val = exp(get_vector(vec, x));
+        set_vector(new, x, val);
         sm += val;
     }
-    for (int i=0; i< vec.x_dim; i++) {
-        set_vector(new, i, get_vector(new, i) / sm);
+    for (int x = 0; x < vec.x_dim; x++) {
+        set_vector(new, x, get_vector(new, x) / sm);
     }   
     delete_vector(vec);
     return new;
@@ -54,8 +54,8 @@ Vector softmax(Vector vec) {
 
 FLOAT cross_entropy(Vector vec, Vector target) {
     FLOAT error = 0;
-    for (int i=0; i< vec.x_dim; i++) {
-        error -= log(get_vector(vec, i)) * get_vector(target, i);
+    for (int x=0; x < vec.x_dim; x++) {
+        error -= log(get_vector(vec, x)) * get_vector(target, x);
     }
     delete_vector(vec);
     return error;
@@ -66,9 +66,9 @@ Vector relu(Vector vec) {
     Vector new;
     init_vector(&new, vec.x_dim);
 
-    for (int i=0; i< vec.x_dim; i++) {
-        FLOAT x = get_vector(vec, i);
-        set_vector(new, i, (0 <= x) ? x : 0);
+    for (int x = 0; x < vec.x_dim; x++) {
+        FLOAT val = get_vector(vec, x);
+        set_vector(new, x, (0 <= val) ? val : 0);
     } 
 
     delete_vector(vec);
