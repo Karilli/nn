@@ -27,21 +27,21 @@ void init_matrix(Matrix *mat, int x_dim, int y_dim) {
     mat->x_dim = x_dim;
     mat->y_dim = y_dim;
     MALLOC(mat->data, FLOAT, x_dim * y_dim);
-    memset(mat->data, 0.0f, x_dim * y_dim * sizeof(FLOAT));
+    memset(mat->data, 0.0, x_dim * y_dim * sizeof(FLOAT));
 }
 
 
 void init_vector(Vector *vec, int x_dim) {
     vec->x_dim = x_dim;
     MALLOC(vec->data, FLOAT, x_dim);
-    memset(vec->data, 0.0f, x_dim * sizeof(FLOAT));
+    memset(vec->data, 0.0, x_dim * sizeof(FLOAT));
 }
 
 
 FLOAT get_matrix(Matrix mat, int x, int y) {
     ASSERT(
         0 <= x && x < mat.x_dim && 0 <= y && y < mat.y_dim,
-        "Matrix indices out of bounds x: 0 <= %d < %d, y: 0 <= %d < %d.",
+        "Matrix indices out of bounds x: 0 <= %d < %d, y: 0 <= %d < %d.\n",
         x, mat.x_dim, y, mat.y_dim
     );
     return mat.data[y * mat.x_dim + x];  
@@ -61,7 +61,7 @@ FLOAT get_vector(Vector vec, int x) {
 void set_matrix(Matrix mat, int x, int y, FLOAT value) {
     ASSERT(
         0 <= x && x < mat.x_dim && 0 <= y && y < mat.y_dim,
-        "Matrix indices out of bounds x: 0 <= %d < %d, y: 0 <= %d < %d.",
+        "Matrix indices out of bounds x: 0 <= %d < %d, y: 0 <= %d < %d.\n",
         x, mat.x_dim, y, mat.y_dim
     );
     mat.data[y * mat.x_dim + x] = value;  

@@ -12,7 +12,7 @@
 
 
 int num_of_lines(FILE *file, int cols) {
-    // Assume integers i range 0-255
+    // Assuming integers in range 0-255 (three digit numbers)
     char *line;
     MALLOC(line, char, cols*4);
     int line_count = 0;
@@ -27,7 +27,7 @@ int num_of_lines(FILE *file, int cols) {
 
 int read_matrix(Matrix *mat, char* filepath, int cols) {
     FILE *file = fopen(filepath, "r");
-    ASSERT(file != NULL, "Could not open file %s.", filepath);
+    ASSERT(file != NULL, "Could not open file %s.\n", filepath);
 
     init_matrix(mat, cols, num_of_lines(file, cols));
     
@@ -41,7 +41,7 @@ int read_matrix(Matrix *mat, char* filepath, int cols) {
             curr_value = 0;
             x++;
         } else if (c == '\n') {
-            ASSERT(x == cols - 1, "Expected %d number of columns, found %d.", cols, x+1);
+            ASSERT(x == cols - 1, "Expected %d number of columns, found %d.\n", cols, x+1);
             set_matrix(*mat, x, y, (FLOAT) curr_value);
             curr_value = 0;
             x = 0;
@@ -50,8 +50,8 @@ int read_matrix(Matrix *mat, char* filepath, int cols) {
             curr_value = 10 * curr_value + (c - '0');
         }
     }
-    ASSERT(x == 0, "EOF encountered before '\\n', could not finnish reading a row.");
-    ASSERT(curr_value == 0, "Encounterd EOF before '\\n' or ','.");
+    ASSERT(x == 0, "EOF encountered before '\\n', could not finnish reading a row.\n");
+    ASSERT(curr_value == 0, "Encounterd EOF before '\\n' or ','.\n");
     
     fclose(file);
     return 0;

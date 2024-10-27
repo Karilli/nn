@@ -12,8 +12,8 @@ int main(void) {
 
     Vector target;
     init_vector(&target, 2);
-    target.data[0] = 0;
-    target.data[1] = 1;
+    target.data[0] = 0.0;
+    target.data[1] = 1.0;
 
     Layer layer1;
     init_layer(&layer1, 2, 3);
@@ -49,7 +49,7 @@ int main(void) {
     FLOAT error = cross_entropy(input, target);
 
     ASSERT(
-        fabs(error - 0.438375f) < 0.0001f,
+        fabs(error - 0.438375) < 1e-6,
         "Expected cross entropy error %f, but got %f.\n",
         0.438375, error
     );

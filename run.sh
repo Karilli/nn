@@ -18,9 +18,9 @@ echo "#################"
 # g++ -Wall -std=c++17 -O3 src/main.cpp src/file2.cpp -o network
 
 echo "test1"
-gcc -o test.o src/test.c -lm
+gcc -Wall -Werror -O3 -o test.o src/test.c -lm
 echo "main"
-gcc -o main.o src/main.c -lm
+gcc -Wall -Werror -O3 -o main.o src/main.c -lm
 
 echo "#################"
 echo "     RUNNING     "
