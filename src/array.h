@@ -23,14 +23,6 @@ typedef struct Vector {
 } Vector;
 
 
-void print_vector(Vector vec) {
-    for(int i = 0; i < vec.x_dim; i++) {
-        printf("%f, ", vec.data[i]);
-    }
-    printf("\n");
-}
-
-
 void init_matrix(Matrix *mat, int x_dim, int y_dim) {
     mat->x_dim = x_dim;
     mat->y_dim = y_dim;
@@ -93,6 +85,25 @@ void delete_vector(Vector vec) {
 
 void delete_matrix(Matrix mat) {
     FREE(mat.data);
+}
+
+
+void print_vector(Vector vec) {
+    for(int i = 0; i < vec.x_dim; i++) {
+        printf("%f, ", vec.data[i]);
+    }
+    printf("\n");
+}
+
+
+void print_matrix(Matrix mat) {
+    for (int y = 0; y < mat.y_dim; y++) {
+        for(int x = 0; x < mat.x_dim; x++) {
+            printf("%f, ", get_matrix(mat, x, y));
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
 
 

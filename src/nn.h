@@ -76,7 +76,7 @@ Vector relu(Vector vec) {
 }
 
 
-Vector matmul(Matrix mat, Vector vec) {
+Vector propagate_through_layer(Matrix mat, Vector vec) {
     Vector new;
     init_vector(&new, mat.y_dim);
     ASSERT(vec.x_dim + 1 == mat.x_dim,
@@ -84,12 +84,11 @@ Vector matmul(Matrix mat, Vector vec) {
         mat.x_dim, mat.y_dim, vec.x_dim
     );
     for (int y=0; y < mat.y_dim; y++) {
-        FLOAT sm = 0.0f;
+        FLOAT sm = get_matrix(mat, 0, y);
         for (int x=1; x < mat.x_dim; x++) {
-            sm += get_matrix(mat, x, y) * get_vector(vec, x - 1);
+            FLOAT val = get_matrix(mat, x, y) * get_vector(vec, x - 1);
+            sm += val;
         }
-        sm += get_matrix(mat, 0, y);
-        
         set_vector(new, y, sm);
     }
     delete_vector(vec);
