@@ -18,8 +18,8 @@ typedef struct Layer {
 
 
 void init_layer(Layer *layer, int x_dim, int y_dim){
-    init_matrix(&(layer->parameters), x_dim, y_dim);
-    init_matrix(&(layer->gradients), x_dim, y_dim);
+    init_matrix(&(layer->parameters), x_dim + 1, y_dim);
+    init_matrix(&(layer->gradients), x_dim + 1, y_dim);
     srand(time(NULL));
     for(int y = 0; y < layer->parameters.y_dim; y++) {
         for(int x = 0; x < layer->parameters.x_dim; x++) {    
@@ -79,15 +79,17 @@ Vector relu(Vector vec) {
 Vector matmul(Matrix mat, Vector vec) {
     Vector new;
     init_vector(&new, mat.y_dim);
-    ASSERT(vec.x_dim == mat.x_dim,
+    ASSERT(vec.x_dim + 1 == mat.x_dim,
         "Non-matching matrix sizes %d x %d, %d",
         mat.x_dim, mat.y_dim, vec.x_dim
     );
     for (int y=0; y < mat.y_dim; y++) {
         FLOAT sm = 0.0f;
-        for (int x=0; x < mat.x_dim; x++) {
-            sm += get_matrix(mat, x, y) * get_vector(vec, x);
+        for (int x=1; x < mat.x_dim; x++) {
+            sm += get_matrix(mat, x, y) * get_vector(vec, x - 1);
         }
+        sm += get_matrix(mat, 0, y);
+        
         set_vector(new, y, sm);
     }
     delete_vector(vec);

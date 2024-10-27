@@ -59,7 +59,7 @@ FLOAT get_matrix(Matrix mat, int x, int y) {
 FLOAT get_vector(Vector vec, int x) {
     ASSERT(
         0 <= x && x < vec.x_dim,
-        "Vector index out of bounds x: 0 <= %d < %d.",
+        "Vector index out of bounds x: 0 <= %d < %d.\n",
         x, vec.x_dim
     );
     return vec.data[x];  
@@ -79,7 +79,7 @@ void set_matrix(Matrix mat, int x, int y, FLOAT value) {
 void set_vector(Vector vec, int x, FLOAT value) {
     ASSERT(
         0 <= x && x < vec.x_dim,
-        "Vector index out of bounds x: 0 <= %d < %d.",
+        "Vector index out of bounds x: 0 <= %d < %d.\n",
         x, vec.x_dim
     );
     vec.data[x] = value;  
