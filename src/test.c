@@ -41,12 +41,10 @@ int main(void) {
     layer2.parameters.data[6] = 0.7;
     layer2.parameters.data[7] = 0.9;
 
-    input = propagate_through_layer(layer1.parameters, input);
-    input = relu(input);
-    input = propagate_through_layer(layer2.parameters, input);
-    input = relu(input);
-    input = softmax(input);
-    FLOAT error = cross_entropy(input, target);
+    input = relu_layer(layer1, input, 0);
+    Output out = ces_layer(layer2, input, 0);
+    Vector probs = out.probs;
+    FLOAT error = out.error;
 
     ASSERT(
         fabs(error - 0.438375) < 1e-6,
