@@ -1,8 +1,8 @@
-
 #ifndef CSV_H
 #define CSV_H
 
-#include "array.h"
+#include "matrix.h"
+#include "precision.h"
 #include "macro_utils.h"
 
 

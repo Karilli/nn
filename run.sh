@@ -18,7 +18,7 @@ echo "#################"
 # g++ -Wall -std=c++17 -O3 src/main.cpp src/file2.cpp -o network
 
 echo "test1"
-gcc -Wall -Werror -O3 -o test.o src/test.c -lm
+gcc -Wall -Werror -O3 -o test1.o test/test1.c -lm -Isrc
 echo "main"
 gcc -Wall -Werror -O3 -o main.o src/main.c -lm
 
@@ -32,7 +32,7 @@ echo "#################"
 # nice -n 19 ./network
 
 echo "test1"
-./test.o
+./test1.o
 echo "main"
 ./main.o
 

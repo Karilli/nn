@@ -1,6 +1,6 @@
 
-#ifndef ASSERT_H
-#define ASSERT_H
+#ifndef MACRO_UTILS_H
+#define MACRO_UTILS_H
 
 
 int ALLOC_COUNTER = 0;
