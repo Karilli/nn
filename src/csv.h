@@ -12,7 +12,7 @@
 
 
 int num_of_lines(FILE *file, int cols) {
-    // Assuming integers in range 0-255 (three digit numbers)
+    // Assuming integers in range 0-255 (three digits)
     char *line;
     MALLOC(line, char, cols*4);
     int line_count = 0;

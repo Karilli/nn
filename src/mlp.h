@@ -15,7 +15,6 @@
 #include "stdbool.h"
 
 
-
 typedef struct MLP {
     Layer *layers;
     int n_layers;
@@ -39,18 +38,22 @@ void delete_model(MLP mlp) {
 }
 
 
-void backprop(Layer layer1, Layer layer2) {
+void _backprop(Layer layer1, Layer layer2) {
     Vector temp;
-    init_vector(&temp, layer1.parameters.y_dim);
+    init_vector(&temp, layer2.parameters.x_dim - 1);
+    printf("hello\n");
     for (int y=0; y < layer2.parameters.y_dim; y++) {
         for (int x=1; x < layer2.parameters.x_dim; x++) {
             FLOAT val = get_matrix(layer2.parameters, x, y) * get_vector(layer2.inner_potential_derivative, y);
             add_vector(temp, x-1, val);
         }
     }
+    printf("hello\n");
     for (int y=0; y < layer1.gradients.y_dim; y++) {
-        for (int x=0; x < layer1.gradients.x_dim; x++) {
-            FLOAT val = get_matrix(layer1.gradients, x, y) * get_vector(temp, y);
+        FLOAT val = get_vector(layer1.inner_potential_derivative, 0) * get_vector(temp, y);
+        set_matrix(layer1.gradients, 0, y, val);
+        for (int x=1; x < layer1.gradients.x_dim; x++) {
+            val = get_vector(layer1.inner_potential_derivative, x) * get_vector(layer1.input, x-1) * get_vector(temp, y);
             set_matrix(layer1.gradients, x, y, val);
         }
     }
@@ -67,8 +70,13 @@ Output forward(MLP mlp, Vector input, Vector *target, bool grad) {
 
 
 void backward(MLP mlp) {
+    printf("hello");
     for (int i=mlp.n_layers - 2; 0 <= i; i--) {
-        backprop(mlp.layers[i], mlp.layers[i+1]);
+        _backprop(mlp.layers[i], mlp.layers[i+1]);
+    }
+    for (int i=0; i<mlp.n_layers; i++) {
+        delete_vector(mlp.layers[i].inner_potential_derivative);
+        delete_vector(mlp.layers[i].input);
     }
 }
 
@@ -76,7 +84,6 @@ void backward(MLP mlp) {
 void zero_grad(MLP mlp) {
     for (int i=0; i<mlp.n_layers; i++) {
         memset(mlp.layers[i].gradients.data, 0.0, mlp.layers[i].gradients.x_dim * mlp.layers[i].gradients.y_dim * sizeof(FLOAT));
-        memset(mlp.layers[i].inner_potential_derivative.data, 0.0, mlp.layers[i].inner_potential_derivative.x_dim * sizeof(FLOAT));
     }
 }
 #endif

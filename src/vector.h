@@ -29,6 +29,7 @@ void delete_vector(Vector vec) {
 
 
 FLOAT get_vector(Vector vec, int x) {
+    ASSERT(vec.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
     ASSERT(
         0 <= x && x < vec.x_dim,
         "Vector index out of bounds x: 0 <= %d < %d.\n",
@@ -39,6 +40,7 @@ FLOAT get_vector(Vector vec, int x) {
 
 
 void set_vector(Vector vec, int x, FLOAT value) {
+    ASSERT(vec.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
     ASSERT(
         0 <= x && x < vec.x_dim,
         "Vector index out of bounds x: 0 <= %d < %d.\n",
@@ -49,6 +51,7 @@ void set_vector(Vector vec, int x, FLOAT value) {
 
 
 void add_vector(Vector vec, int x, FLOAT value) {
+    ASSERT(vec.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
     ASSERT(
         0 <= x && x < vec.x_dim,
         "Vector index out of bounds x: 0 <= %d < %d.\n",
@@ -59,6 +62,7 @@ void add_vector(Vector vec, int x, FLOAT value) {
 
 
 void print_vector(Vector vec) {
+    ASSERT(vec.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
     for(int i = 0; i < vec.x_dim; i++) {
         printf("%f, ", vec.data[i]);
     }
@@ -67,6 +71,7 @@ void print_vector(Vector vec) {
 
 
 void assert_vector_equals(Vector vec, FLOAT data[], int length, FLOAT eps) {
+    ASSERT(vec.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
     ASSERT(length == vec.x_dim, "Expected length %d, but got %d.\n", length, vec.x_dim);
     for (int x=0; x < length; x++) {
         ASSERT(

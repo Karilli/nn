@@ -21,6 +21,7 @@ typedef struct Matrix {
 void init_matrix(Matrix *mat, int x_dim, int y_dim) {
     mat->x_dim = x_dim;
     mat->y_dim = y_dim;
+    ASSERT(mat->data == NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
     MALLOC(mat->data, FLOAT, x_dim * y_dim);
     memset(mat->data, 0.0, x_dim * y_dim * sizeof(FLOAT));
 }
@@ -32,6 +33,7 @@ void delete_matrix(Matrix mat) {
 
 
 FLOAT get_matrix(Matrix mat, int x, int y) {
+    ASSERT(mat.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
     ASSERT(
         0 <= x && x < mat.x_dim && 0 <= y && y < mat.y_dim,
         "Matrix indices out of bounds x: 0 <= %d < %d, y: 0 <= %d < %d.\n",
@@ -42,6 +44,7 @@ FLOAT get_matrix(Matrix mat, int x, int y) {
 
 
 void set_matrix(Matrix mat, int x, int y, FLOAT value) {
+    ASSERT(mat.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
     ASSERT(
         0 <= x && x < mat.x_dim && 0 <= y && y < mat.y_dim,
         "Matrix indices out of bounds x: 0 <= %d < %d, y: 0 <= %d < %d.\n",
@@ -52,6 +55,7 @@ void set_matrix(Matrix mat, int x, int y, FLOAT value) {
 
 
 void add_matrix(Matrix mat, int x, int y, FLOAT value) {
+    ASSERT(mat.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
     ASSERT(
         0 <= x && x < mat.x_dim && 0 <= y && y < mat.y_dim,
         "Matrix indices out of bounds x: 0 <= %d < %d, y: 0 <= %d < %d.\n",
@@ -62,6 +66,7 @@ void add_matrix(Matrix mat, int x, int y, FLOAT value) {
 
 
 void print_matrix(Matrix mat) {
+    ASSERT(mat.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
     for (int y = 0; y < mat.y_dim; y++) {
         for(int x = 0; x < mat.x_dim; x++) {
             printf("%f, ", get_matrix(mat, x, y));
@@ -73,6 +78,7 @@ void print_matrix(Matrix mat) {
 
 
 void assert_matrix_equals(Matrix mat, FLOAT data[], int x_dim, int y_dim, FLOAT eps) {
+    ASSERT(mat.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
     ASSERT(x_dim == mat.x_dim, "Expected x_dim %d, but got %d.\n", x_dim, mat.x_dim);
     ASSERT(y_dim == mat.y_dim, "Expected y_dim %d, but got %d.\n", y_dim, mat.y_dim);
     for (int y=0; y < y_dim; y++) {

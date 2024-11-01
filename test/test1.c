@@ -39,10 +39,14 @@ int main(void) {
     layer2.parameters.data[6] = 0.7;
     layer2.parameters.data[7] = 0.9;
 
+    printf("hi\n");
     input = relu_layer(layer1, input, 1);
+    printf("hi\n");
     FLOAT data1[3] = {0.475000, 0.175000, 1.025000};
+    printf("hi\n");
     assert_vector_equals(input, data1, 3, 1e-6);
     Output out = ces_layer(layer2, input, &target, 1);
+    printf("hi\n");
     Vector probs = out.probs;
     FLOAT error = out.error;
     FLOAT data2[2] = {0.354916, 0.645084};
@@ -54,7 +58,9 @@ int main(void) {
     };
     assert_matrix_equals(layer2.gradients, data4, 4, 2, 1e-6);
     
-    backprop(layer1, layer2);
+    printf("hi\n");
+    _backprop(layer1, layer2);
+    printf("hi\n");
 
     FLOAT data3[9] = {
         0.141966, 0.070983, 0.106475,
