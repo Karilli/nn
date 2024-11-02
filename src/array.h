@@ -68,6 +68,16 @@ void set_matrix(Matrix mat, int x, int y, FLOAT value) {
 }
 
 
+void add_matrix(Matrix mat, int x, int y, FLOAT value) {
+    ASSERT(
+        0 <= x && x < mat.x_dim && 0 <= y && y < mat.y_dim,
+        "Matrix indices out of bounds x: 0 <= %d < %d, y: 0 <= %d < %d.",
+        x, mat.x_dim, y, mat.y_dim
+    );
+    mat.data[y * mat.x_dim + x] += value;  
+}
+
+
 void set_vector(Vector vec, int x, FLOAT value) {
     ASSERT(
         0 <= x && x < vec.x_dim,

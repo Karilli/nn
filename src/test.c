@@ -41,8 +41,8 @@ int main(void) {
     layer2.parameters.data[6] = 0.7;
     layer2.parameters.data[7] = 0.9;
 
-    input = relu_layer_forward(layer1, input, 1);
-    Output out = ces_layer_forward(layer2, &target, input, 1);
+    input = relu_layer_forward(&layer1, input, 0);
+    Output out = ces_layer_forward(&layer2, &target, input, 0);
     Vector probs = out.probs;
     FLOAT error = out.error;
 
@@ -58,7 +58,7 @@ int main(void) {
     delete_layer(layer2);
     ASSERT(
         ALLOC_COUNTER == 0,
-        "Expected ALLOC_COUNTER to be 0, but got %d.",
+        "Expected ALLOC_COUNTER to be 0, but got %d.\n",
         ALLOC_COUNTER
     );
     return 0;

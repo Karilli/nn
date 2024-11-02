@@ -26,9 +26,18 @@ typedef struct Output {
 } Output;
 
 
+
+typedef struct Model {
+    Layer *layers;
+    int n_layers;
+} Model;
+
+
 void init_layer(Layer *layer, int x_dim, int y_dim){
     init_matrix(&(layer->parameters), x_dim + 1, y_dim);
     init_matrix(&(layer->gradients), x_dim + 1, y_dim);
+    layer->inner_potential_derivative.data = NULL;
+    layer->input.data = NULL;
     srand(time(NULL));
     for(int y = 0; y < layer->parameters.y_dim; y++) {
         for(int x = 0; x < layer->parameters.x_dim; x++) {    
@@ -122,8 +131,8 @@ Vector ces_der(Vector soft, Vector target) {
 }
 
 
-Output ces_layer_forward(Layer layer, Vector *target, Vector input, bool grad) {
-    Vector inner = matmul(layer.parameters, input);
+Output ces_layer_forward(Layer *layer, Vector *target, Vector input, bool grad) {
+    Vector inner = matmul(layer->parameters, input);
     Vector soft = softmax(inner);
     Output out = {.probs = soft, .error=0.0};
     delete_vector(inner);
@@ -134,8 +143,12 @@ Output ces_layer_forward(Layer layer, Vector *target, Vector input, bool grad) {
     }
     out.error = cross_entropy(soft, *target);
     if (grad) {
-        layer.input = input;
-        layer.inner_potential_derivative = ces_der(soft, *target);
+        printf("hello world\n");
+        printf("%d\n", input.x_dim);
+        layer->input = input;
+        printf("%d\n", layer->input.x_dim);
+        layer->inner_potential_derivative = ces_der(soft, *target);
+        printf("%d\n", layer->inner_potential_derivative.x_dim);
     } else {
         delete_vector(input);
     }
@@ -143,12 +156,12 @@ Output ces_layer_forward(Layer layer, Vector *target, Vector input, bool grad) {
 }
 
 
-Vector relu_layer_forward(Layer layer, Vector input, bool grad) {
-    Vector inner = matmul(layer.parameters, input);
+Vector relu_layer_forward(Layer *layer, Vector input, bool grad) {
+    Vector inner = matmul(layer->parameters, input);
     Vector activation = relu(inner);
     if (grad) {
-        layer.input = input;
-        layer.inner_potential_derivative = relu_der(inner);
+        layer->input = input;
+        layer->inner_potential_derivative = relu_der(inner);
     } else {
         delete_vector(input);
     }
@@ -157,6 +170,54 @@ Vector relu_layer_forward(Layer layer, Vector input, bool grad) {
 }
 
 
+void init_model(Model *model, int *hidden, int n_hidden, int n_classes) {
+    model->n_layers = n_hidden;
+    MALLOC(model->layers, Layer, model->n_layers);
+    for (int i=0;i<n_hidden-1;i++) {
+        init_layer(&(model->layers[i]), hidden[i], hidden[i+1]);
+    }
+    init_layer(&(model->layers[n_hidden-1]), hidden[n_hidden-1], n_classes);
+}
+
+
+void delete_model(Model model) {
+    for (int i=0;i<model.n_layers;i++) {
+        ASSERT(
+            model.layers[i].inner_potential_derivative.data == NULL,
+            "ERROR.\n"
+        );
+        ASSERT(
+            model.layers[i].input.data == NULL,
+            "ERROR.\n"
+        );
+        delete_layer(model.layers[i]);
+    }
+}
+
+
+// void zero_grad(Model mode) {
+
+// }
+
+
+void backprop(Model model) {
+    Layer last = model.layers[model.n_layers-1];
+
+    print_vector(last.inner_potential_derivative);
+    print_vector(last.input);
+
+    for (int y=0; y<last.parameters.y_dim;y++) {
+        FLOAT val = get_vector(last.inner_potential_derivative, y);
+        
+        set_matrix(last.gradients, 0, y, val);
+        for (int x=1;x<last.parameters.x_dim;x++) {
+            set_matrix(last.gradients, x, y, val * get_vector(last.input, x-1));
+        }
+    }
+    for (int i=model.n_layers-1; 0<=i;i--) {
+
+    }
+}
 
 
 #endif

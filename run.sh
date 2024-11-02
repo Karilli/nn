@@ -19,6 +19,8 @@ echo "#################"
 
 echo "test1"
 gcc -o test.o src/test.c -lm
+echo "test2"
+gcc -o test2.o src/test2.c -lm
 echo "main"
 gcc -o main.o src/main.c -lm
 
@@ -33,6 +35,8 @@ echo "#################"
 
 echo "test1"
 ./test.o
+echo "test2"
+./test2.o
 echo "main"
 ./main.o
 
