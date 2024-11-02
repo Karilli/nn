@@ -214,9 +214,41 @@ void backprop(Model model) {
             set_matrix(last.gradients, x, y, val * get_vector(last.input, x-1));
         }
     }
-    for (int i=model.n_layers-1; 0<=i;i--) {
-
+    
+    Vector temp1;
+    Vector temp2;
+    init_vector(&temp2, last.parameters.y_dim);
+    for (int y=0; y<last.parameters.y_dim; y++) {
+        set_vector(temp2, y, 1.0);
     }
+
+    for (int i=model.n_layers-2; 0<=i;i--) {
+        
+        Layer layer1 = model.layers[i];
+        Layer layer2 = model.layers[i+1];
+        init_vector(&temp1, layer2.parameters.x_dim);
+
+        for (int y=0; y<layer2.parameters.y_dim; y++) {
+            FLOAT val = get_vector(temp2, y);
+            val *= get_vector(layer2.inner_potential_derivative, y);
+            for (int x=0; x<layer2.parameters.x_dim; x++) {
+                set_vector(temp1, x, val * get_matrix(layer2.parameters, x, y));
+            }
+        }
+
+        for (int y=0; y<layer1.parameters.y_dim;y++) {
+            FLOAT val = get_vector(layer1.inner_potential_derivative, y);
+            val *= get_vector(temp1, y);
+            set_matrix(layer1.gradients, 0, y, val);
+            for (int x=1;x<layer1.parameters.x_dim;x++) {
+                set_matrix(layer1.gradients, x, y, val * get_vector(layer1.input, x-1));
+            }
+        }
+        
+        delete_vector(temp2);
+        temp2 = temp1;
+    }
+    delete_vector(temp1);
 }
 
 

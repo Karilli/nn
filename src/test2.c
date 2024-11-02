@@ -58,6 +58,7 @@ int main(void) {
 
     print_vector(probs);
     printf("%f\n", error);
+    print_matrix(layer1->gradients);
     print_matrix(layer2->gradients);
 
     ASSERT(
