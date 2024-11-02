@@ -88,6 +88,16 @@ void set_vector(Vector vec, int x, FLOAT value) {
 }
 
 
+void add_vector(Vector vec, int x, FLOAT value) {
+    ASSERT(
+        0 <= x && x < vec.x_dim,
+        "Vector index out of bounds x: 0 <= %d < %d.\n",
+        x, vec.x_dim
+    );
+    vec.data[x] += value;  
+}
+
+
 void delete_vector(Vector vec) {
     FREE(vec.data);
 }

@@ -229,10 +229,10 @@ void backprop(Model model) {
         init_vector(&temp1, layer2.parameters.x_dim);
 
         for (int y=0; y<layer2.parameters.y_dim; y++) {
-            FLOAT val = get_vector(temp2, y);
-            val *= get_vector(layer2.inner_potential_derivative, y);
-            for (int x=0; x<layer2.parameters.x_dim; x++) {
-                set_vector(temp1, x, val * get_matrix(layer2.parameters, x, y));
+            for (int x=1; x<layer2.parameters.x_dim; x++) {
+                FLOAT val = get_vector(temp2, y);
+                val *= get_vector(layer2.inner_potential_derivative, y);
+                add_vector(temp1, x-1, val * get_matrix(layer2.parameters, x, y));
             }
         }
 
@@ -247,9 +247,36 @@ void backprop(Model model) {
         
         delete_vector(temp2);
         temp2 = temp1;
+        delete_vector(layer2.input);
+        delete_vector(layer2.inner_potential_derivative);
     }
     delete_vector(temp1);
+    delete_vector(model.layers[0].input);
+    delete_vector(model.layers[0].inner_potential_derivative);
 }
+
+
+// void _backprop(Layer layer1, Layer layer2) {
+//     Vector temp;
+//     init_vector(&temp, layer2.parameters.x_dim - 1);
+//     printf("hello\n");
+//     for (int y=0; y < layer2.parameters.y_dim; y++) {
+//         for (int x=1; x < layer2.parameters.x_dim; x++) {
+//             FLOAT val = get_matrix(layer2.parameters, x, y) * get_vector(layer2.inner_potential_derivative, y);
+//             add_vector(temp, x-1, val);
+//         }
+//     }
+//     printf("hello\n");
+//     for (int y=0; y < layer1.gradients.y_dim; y++) {
+//         FLOAT val = get_vector(layer1.inner_potential_derivative, 0) * get_vector(temp, y);
+//         set_matrix(layer1.gradients, 0, y, val);
+//         for (int x=1; x < layer1.gradients.x_dim; x++) {
+//             val = get_vector(layer1.inner_potential_derivative, x) * get_vector(layer1.input, x-1) * get_vector(temp, y);
+//             set_matrix(layer1.gradients, x, y, val);
+//         }
+//     }
+//     delete_vector(temp);
+// }
 
 
 #endif

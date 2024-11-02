@@ -49,12 +49,12 @@ int main(void) {
 
     printf("hello\n");
 
-    input = relu_layer_forward(layer1, input, 1);
-    Output out = ces_layer_forward(layer2, &target, input, 1);
+    input = relu_layer_forward(layer1, input, 0);
+    Output out = ces_layer_forward(layer2, &target, input, 0);
     Vector probs = out.probs;
     FLOAT error = out.error;
 
-    backprop(model);
+    // backprop(model);
 
     print_vector(probs);
     printf("%f\n", error);
@@ -69,8 +69,7 @@ int main(void) {
 
     delete_vector(probs);
     delete_vector(target);
-    delete_layer(*layer1);
-    delete_layer(*layer2);
+    delete_model(model);
     ASSERT(
         ALLOC_COUNTER == 0,
         "Expected ALLOC_COUNTER to be 0, but got %d.",
