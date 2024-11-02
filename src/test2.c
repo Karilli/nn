@@ -47,11 +47,30 @@ int main(void) {
 
 
     input = relu_layer_forward(layer1, input, 1);
+    FLOAT data1[3] = {0.475000, 0.175000, 1.025000};
+    assert_vector_equals(input, data1, 3, 1e-6);
+
     Output out = ces_layer_forward(layer2, &target, input, 1);
     Vector probs = out.probs;
     FLOAT error = out.error;
 
     backprop(model);
+
+
+    
+
+    
+    Vector probs = out.probs;
+    FLOAT error = out.error;
+    FLOAT data2[2] = {0.354916, 0.645084};
+    assert_vector_equals(probs, data2, 2, 1e-6);
+
+    FLOAT data4[8] = {
+        0.354916, 0.168585, 0.062110, 0.363789,
+        -0.354916, -0.168585, -0.062110, -0.363789,
+    };
+    assert_matrix_equals(layer2->gradients, data4, 4, 2, 1e-6);
+
 
     print_vector(probs);
     printf("%f\n", error);
