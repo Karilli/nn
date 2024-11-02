@@ -20,7 +20,6 @@ int main(void) {
     init_model(&model, hidden, 2, 2);
     Layer *layer1 = &model.layers[0];
 
-    printf("hello\n");
 
     layer1->parameters.data[0] = 0.0;
     layer1->parameters.data[1] = 0.5;
@@ -34,7 +33,6 @@ int main(void) {
     layer1->parameters.data[7] = 0.7;
     layer1->parameters.data[8] = 0.9;
 
-    printf("hello\n");
 
     Layer *layer2 = &model.layers[1];
     layer2->parameters.data[0] = 0.0;
@@ -47,14 +45,13 @@ int main(void) {
     layer2->parameters.data[6] = 0.7;
     layer2->parameters.data[7] = 0.9;
 
-    printf("hello\n");
 
-    input = relu_layer_forward(layer1, input, 0);
-    Output out = ces_layer_forward(layer2, &target, input, 0);
+    input = relu_layer_forward(layer1, input, 1);
+    Output out = ces_layer_forward(layer2, &target, input, 1);
     Vector probs = out.probs;
     FLOAT error = out.error;
 
-    // backprop(model);
+    backprop(model);
 
     print_vector(probs);
     printf("%f\n", error);

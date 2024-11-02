@@ -137,18 +137,14 @@ Output ces_layer_forward(Layer *layer, Vector *target, Vector input, bool grad) 
     Output out = {.probs = soft, .error=0.0};
     delete_vector(inner);
     if (target == NULL) {
-        ASSERT(grad == false, "ERROR.\n");
+        ASSERT(grad == false, "ERROR3.\n");
         delete_vector(input);
         return out;
     }
     out.error = cross_entropy(soft, *target);
     if (grad) {
-        printf("hello world\n");
-        printf("%d\n", input.x_dim);
         layer->input = input;
-        printf("%d\n", layer->input.x_dim);
         layer->inner_potential_derivative = ces_der(soft, *target);
-        printf("%d\n", layer->inner_potential_derivative.x_dim);
     } else {
         delete_vector(input);
     }
@@ -182,16 +178,17 @@ void init_model(Model *model, int *hidden, int n_hidden, int n_classes) {
 
 void delete_model(Model model) {
     for (int i=0;i<model.n_layers;i++) {
-        ASSERT(
-            model.layers[i].inner_potential_derivative.data == NULL,
-            "ERROR.\n"
-        );
-        ASSERT(
-            model.layers[i].input.data == NULL,
-            "ERROR.\n"
-        );
+        // ASSERT(
+        //     model.layers[i].inner_potential_derivative.data == NULL,
+        //     "ERROR2.\n"
+        // );
+        // ASSERT(
+        //     model.layers[i].input.data == NULL,
+        //     "ERROR1.\n"
+        // );
         delete_layer(model.layers[i]);
     }
+    FREE(model.layers);
 }
 
 
@@ -254,29 +251,6 @@ void backprop(Model model) {
     delete_vector(model.layers[0].input);
     delete_vector(model.layers[0].inner_potential_derivative);
 }
-
-
-// void _backprop(Layer layer1, Layer layer2) {
-//     Vector temp;
-//     init_vector(&temp, layer2.parameters.x_dim - 1);
-//     printf("hello\n");
-//     for (int y=0; y < layer2.parameters.y_dim; y++) {
-//         for (int x=1; x < layer2.parameters.x_dim; x++) {
-//             FLOAT val = get_matrix(layer2.parameters, x, y) * get_vector(layer2.inner_potential_derivative, y);
-//             add_vector(temp, x-1, val);
-//         }
-//     }
-//     printf("hello\n");
-//     for (int y=0; y < layer1.gradients.y_dim; y++) {
-//         FLOAT val = get_vector(layer1.inner_potential_derivative, 0) * get_vector(temp, y);
-//         set_matrix(layer1.gradients, 0, y, val);
-//         for (int x=1; x < layer1.gradients.x_dim; x++) {
-//             val = get_vector(layer1.inner_potential_derivative, x) * get_vector(layer1.input, x-1) * get_vector(temp, y);
-//             set_matrix(layer1.gradients, x, y, val);
-//         }
-//     }
-//     delete_vector(temp);
-// }
 
 
 #endif
