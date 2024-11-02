@@ -9,12 +9,21 @@
 #include <stdlib.h>
 #include <time.h>
 #include "math.h"
+#include "stdbool.h"
 
 
 typedef struct Layer {
     Matrix parameters;
     Matrix gradients;
+    Vector inner_potential_derivative;
+    Vector input;
 } Layer;
+
+
+typedef struct Output {
+    Vector probs;
+    FLOAT error;
+} Output;
 
 
 void init_layer(Layer *layer, int x_dim, int y_dim){
@@ -46,8 +55,7 @@ Vector softmax(Vector vec) {
     }
     for (int x = 0; x < vec.x_dim; x++) {
         set_vector(new, x, get_vector(new, x) / sm);
-    }   
-    delete_vector(vec);
+    }
     return new;
 }
 
@@ -57,7 +65,6 @@ FLOAT cross_entropy(Vector vec, Vector target) {
     for (int x=0; x < vec.x_dim; x++) {
         error -= log(get_vector(vec, x)) * get_vector(target, x);
     }
-    delete_vector(vec);
     return error;
 }
 
@@ -71,12 +78,11 @@ Vector relu(Vector vec) {
         set_vector(new, x, (0 <= val) ? val : 0);
     } 
 
-    delete_vector(vec);
     return new;
 }
 
 
-Vector propagate_through_layer(Matrix mat, Vector vec) {
+Vector matmul(Matrix mat, Vector vec) {
     Vector new;
     init_vector(&new, mat.y_dim);
     ASSERT(vec.x_dim + 1 == mat.x_dim,
@@ -91,9 +97,66 @@ Vector propagate_through_layer(Matrix mat, Vector vec) {
         }
         set_vector(new, y, sm);
     }
-    delete_vector(vec);
     return new;
 }
+
+
+Vector relu_der(Vector inner) {
+    Vector new;
+    init_vector(&new, inner.x_dim);
+    for (int x=0; x<inner.x_dim;x++) {
+        set_vector(new, x, 0.0 <= get_vector(inner, x) ? 1.0 : 0.0);
+    }
+    return new;
+}
+
+
+Vector ces_der(Vector soft, Vector target) {
+    Vector new;
+    init_vector(&new, soft.x_dim);
+    for (int x=0; x<soft.x_dim;x++) {
+        FLOAT val = get_vector(soft, x) - get_vector(target, x);
+        set_vector(new, x, val);
+    }
+    return new;
+}
+
+
+Output ces_layer_forward(Layer layer, Vector *target, Vector input, bool grad) {
+    Vector inner = matmul(layer.parameters, input);
+    Vector soft = softmax(inner);
+    Output out = {.probs = soft, .error=0.0};
+    delete_vector(inner);
+    if (target == NULL) {
+        ASSERT(grad == false, "ERROR.\n");
+        delete_vector(input);
+        return out;
+    }
+    out.error = cross_entropy(soft, *target);
+    if (grad) {
+        layer.input = input;
+        layer.inner_potential_derivative = ces_der(soft, *target);
+    } else {
+        delete_vector(input);
+    }
+    return out;
+}
+
+
+Vector relu_layer_forward(Layer layer, Vector input, bool grad) {
+    Vector inner = matmul(layer.parameters, input);
+    Vector activation = relu(inner);
+    if (grad) {
+        layer.input = input;
+        layer.inner_potential_derivative = relu_der(inner);
+    } else {
+        delete_vector(input);
+    }
+    delete_vector(inner);
+    return activation;
+}
+
+
 
 
 #endif

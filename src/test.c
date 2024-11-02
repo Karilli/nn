@@ -41,12 +41,10 @@ int main(void) {
     layer2.parameters.data[6] = 0.7;
     layer2.parameters.data[7] = 0.9;
 
-    input = propagate_through_layer(layer1.parameters, input);
-    input = relu(input);
-    input = propagate_through_layer(layer2.parameters, input);
-    input = relu(input);
-    input = softmax(input);
-    FLOAT error = cross_entropy(input, target);
+    input = relu_layer_forward(layer1, input, 1);
+    Output out = ces_layer_forward(layer2, &target, input, 1);
+    Vector probs = out.probs;
+    FLOAT error = out.error;
 
     ASSERT(
         fabs(error - 0.438375f) < 0.0001f,
@@ -54,6 +52,7 @@ int main(void) {
         0.438375, error
     );
 
+    delete_vector(probs);
     delete_vector(target);
     delete_layer(layer1);
     delete_layer(layer2);
