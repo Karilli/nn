@@ -17,7 +17,7 @@ int main(void) {
 
     Model model;
     int hidden[2] = {2, 3};
-    init_model(&model, hidden, 2, 2);
+    init_model(&model, hidden, 2, 2, 0);
     Layer *layer1 = &model.layers[0];
 
 
@@ -56,12 +56,6 @@ int main(void) {
 
     backprop(model);
 
-
-    
-
-    
-    Vector probs = out.probs;
-    FLOAT error = out.error;
     FLOAT data2[2] = {0.354916, 0.645084};
     assert_vector_equals(probs, data2, 2, 1e-6);
 
@@ -70,12 +64,13 @@ int main(void) {
         -0.354916, -0.168585, -0.062110, -0.363789,
     };
     assert_matrix_equals(layer2->gradients, data4, 4, 2, 1e-6);
+    FLOAT data3[9] = {
+        0.141966, 0.070983, 0.106475,
+        -0.141966, -0.070983, -0.106475,
+        -0.248441, -0.124221, -0.186331,
+    };
+    assert_matrix_equals(layer1->gradients, data3, 3, 3, 1e-6);
 
-
-    print_vector(probs);
-    printf("%f\n", error);
-    print_matrix(layer1->gradients);
-    print_matrix(layer2->gradients);
 
     ASSERT(
         fabs(error - 0.438375f) < 0.0001f,
@@ -88,7 +83,7 @@ int main(void) {
     delete_model(model);
     ASSERT(
         ALLOC_COUNTER == 0,
-        "Expected ALLOC_COUNTER to be 0, but got %d.",
+        "Expected ALLOC_COUNTER to be 0, but got %d.\n",
         ALLOC_COUNTER
     );
     return 0;

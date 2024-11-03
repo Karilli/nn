@@ -6,8 +6,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "math.h"
 
-#define FLOAT double
+#define FLOAT float
 
 
 typedef struct Matrix {
@@ -26,15 +27,15 @@ typedef struct Vector {
 void init_matrix(Matrix *mat, int x_dim, int y_dim) {
     mat->x_dim = x_dim;
     mat->y_dim = y_dim;
-    MALLOC(mat->data, FLOAT, x_dim * y_dim);
-    memset(mat->data, 0.0f, x_dim * y_dim * sizeof(FLOAT));
+    MALLOC(mat->data, FLOAT, (unsigned int) (x_dim * y_dim));
+    memset(mat->data, 0.0f, (unsigned int) (x_dim * y_dim) * sizeof(FLOAT));
 }
 
 
 void init_vector(Vector *vec, int x_dim) {
     vec->x_dim = x_dim;
-    MALLOC(vec->data, FLOAT, x_dim);
-    memset(vec->data, 0.0f, x_dim * sizeof(FLOAT));
+    MALLOC(vec->data, FLOAT, (unsigned int) x_dim);
+    memset(vec->data, 0.0f, (unsigned int) x_dim * sizeof(FLOAT));
 }
 
 

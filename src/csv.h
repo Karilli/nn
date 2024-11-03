@@ -14,7 +14,7 @@
 int num_of_lines(FILE *file, int cols) {
     // Assume integers i range 0-255
     char *line;
-    MALLOC(line, char, cols*4);
+    MALLOC(line, char, (unsigned int) cols*4);
     int line_count = 0;
     while (fgets(line, cols*4, file)) {
         line_count++;
@@ -35,7 +35,7 @@ int read_matrix(Matrix *mat, char* filepath, int cols) {
     int y = 0;
     char c;
     int curr_value = 0;
-    while ((c = fgetc(file)) != EOF) {
+    while ((c = (char) fgetc(file)) != EOF) {
         if (c == ',') {
             set_matrix(*mat, x, y, (FLOAT) curr_value);
             curr_value = 0;
@@ -57,4 +57,12 @@ int read_matrix(Matrix *mat, char* filepath, int cols) {
     return 0;
 }
 
+
+void write_csv(Matrix mat, char* filepath) {
+    FILE *file = fopen(filepath, "w");
+    for (int y=0; y<mat.y_dim; y++) {
+        fprintf(file,"%d\n", (int) get_matrix(mat, 0, y));
+    }
+    fclose(file);
+}
 #endif

@@ -6,13 +6,17 @@
 int ALLOC_COUNTER = 0;
 
 
-#define ASSERT(condition, format, ...) \
-    do { \
-        if (!(condition)) { \
-            printf(format, ##__VA_ARGS__); \
-            exit(1); \
-        } \
-    } while (0)
+#ifndef PROD 
+    #define ASSERT(condition, format, ...) \
+        do { \
+            if (!(condition)) { \
+                printf(format, ##__VA_ARGS__); \
+                exit(1); \
+            } \
+        } while (0)
+#else
+    #define ASSERT(condition, format, ...)
+#endif
 
 
 #define MALLOC(ptr, type, size) \

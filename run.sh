@@ -18,11 +18,11 @@ echo "#################"
 # g++ -Wall -std=c++17 -O3 src/main.cpp src/file2.cpp -o network
 
 echo "test1"
-gcc -o test.o src/test.c -lm
+gcc -o test.o  -Wall -Werror  src/test.c -lm
 echo "test2"
-gcc -o test2.o src/test2.c -lm
+gcc -o test2.o  -Wall -Werror src/test2.c -lm
 echo "main"
-gcc -o main.o src/main.c -lm
+gcc -o main.o -O3 -D DEBUG -Wall -Werror -Wconversion -Wextra src/main.c -lm
 
 echo "#################"
 echo "     RUNNING     "
