@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "math.h"
+#include <stdatomic.h>
+#include <float.h>
 
 #define FLOAT float
 
@@ -128,30 +130,18 @@ void print_matrix(Matrix mat) {
 }
 
 
-void assert_vector_equals(Vector vec, FLOAT data[], int length, FLOAT eps) {
-    ASSERT(vec.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
-    ASSERT(length == vec.x_dim, "Expected length %d, but got %d.\n", length, vec.x_dim);
-    for (int x=0; x < length; x++) {
-        ASSERT(
-            fabs(get_vector(vec, x) - data[x]) < eps,
-            "Values at index %d are not equal. Expected %f, but got %f.\n",
-            x, data[x], get_vector(vec, x)
-        );
-    }
-}
-void assert_matrix_equals(Matrix mat, FLOAT data[], int x_dim, int y_dim, FLOAT eps) {
-    ASSERT(mat.data != NULL, "Error in file %s, line %d.\n", __FILE__, __LINE__);
-    ASSERT(x_dim == mat.x_dim, "Expected x_dim %d, but got %d.\n", x_dim, mat.x_dim);
-    ASSERT(y_dim == mat.y_dim, "Expected y_dim %d, but got %d.\n", y_dim, mat.y_dim);
-    for (int y=0; y < y_dim; y++) {
-        for (int x=0; x < x_dim; x++) {
-            ASSERT(
-                fabs(get_matrix(mat, x, y) - data[y * x_dim + x]) < eps,
-                "Values at %d,%d are not equal. Expected %f, but got %f.\n",
-                x, y, data[y * x_dim + x], get_matrix(mat, x, y)
-            );
+FLOAT matrix_max(Matrix mat) {
+    FLOAT res = -FLT_MAX;
+
+    for (int y = 0; y < mat.y_dim; y++) {
+        for(int x = 0; x < mat.x_dim; x++) {
+            FLOAT val = get_matrix(mat, x, y);
+            if (res < val) {
+                res = val;
+            }
         }
     }
+    return res;
 }
 
 

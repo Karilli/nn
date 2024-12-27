@@ -1,2 +1,2 @@
 # Source code
-What a great place to put your source code!
+In order to keep the parameters in a sensible range, we clip them in the optimizer (and optimizer params too). We represent the inputs as separate vectors instead of a matrix, as it seemed easier to implement. We satified the time requirements, so we kept it that way. You can disable ASSERT by setting "-D PROD" during compilation.

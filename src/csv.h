@@ -11,25 +11,31 @@
 #include <stdlib.h>
 
 
-int num_of_lines(FILE *file, int cols) {
-    // Assume integers i range 0-255
-    char *line;
-    MALLOC(line, char, (unsigned int) cols*4);
-    int line_count = 0;
-    while (fgets(line, cols*4, file)) {
-        line_count++;
+void get_csv_dimensions(FILE *file, int *rows, int *cols) {
+    int c;
+    int comma_count = 0;
+    int enter_count = 0;
+    while ((c = fgetc(file)) != EOF) {
+        comma_count += c == ',';
+        enter_count += c == '\n';
     }
+
+    *rows = enter_count;
+    *cols = (comma_count + enter_count) / enter_count;
+    
     fseek(file, 0, SEEK_SET);
-    FREE(line);
-    return line_count;
 }
 
 
-int read_matrix(Matrix *mat, char* filepath, int cols) {
+int read_matrix(Matrix *mat, char* filepath) {
     FILE *file = fopen(filepath, "r");
     ASSERT(file != NULL, "Could not open file %s.", filepath);
 
-    init_matrix(mat, cols, num_of_lines(file, cols));
+    int rows;
+    int cols;
+    get_csv_dimensions(file, &rows, &cols);
+    printf("Reading csv '%s' with dimensions: %d x %d\n", filepath, cols, rows);
+    init_matrix(mat, cols, rows);
     
     int x = 0;
     int y = 0;
@@ -59,6 +65,7 @@ int read_matrix(Matrix *mat, char* filepath, int cols) {
 
 
 void write_csv(Matrix mat, char* filepath) {
+    printf("Writing csv '%s' with dimensions: %d x %d\n", filepath, mat.x_dim, mat.y_dim);
     FILE *file = fopen(filepath, "w");
     for (int y=0; y<mat.y_dim; y++) {
         fprintf(file,"%d\n", (int) get_matrix(mat, 0, y));

@@ -15,8 +15,12 @@
 typedef struct Layer {
     Matrix parameters;
     Matrix gradients;
+    Matrix fst_momentum;
+    Matrix snd_momentum;
     Vector inner_potential_derivative;
     Vector input;
+    FLOAT min_param;
+    FLOAT max_param;
 } Layer;
 
 
@@ -42,21 +46,26 @@ FLOAT sample_normal(FLOAT mean, FLOAT stddev) {
     return z0 * stddev + mean;
 }
 
-void HE_initialization(Layer layer) {
-    FLOAT std = 2.f / (FLOAT) layer.parameters.x_dim;
-    for(int y = 0; y < layer.parameters.y_dim; y++) {
-        for(int x = 0; x < layer.parameters.x_dim; x++) {    
-            set_matrix(layer.parameters, x, y, sample_normal(0, std));
+
+void HE_initialization(Layer *layer) {
+    FLOAT std = 2.f / (FLOAT) layer->parameters.x_dim;
+    layer->min_param = - 5.f * std;
+    layer->max_param = 5.f * std;
+    for(int y = 0; y < layer->parameters.y_dim; y++) {
+        for(int x = 0; x < layer->parameters.x_dim; x++) {    
+            set_matrix(layer->parameters, x, y, sample_normal(0, std));
         }
     }
 }
 
 
-void glorot_initialization(Layer layer) {
-    FLOAT range = (FLOAT) sqrt(6.f / (FLOAT) (layer.parameters.x_dim + layer.parameters.y_dim));
-    for(int y = 0; y < layer.parameters.y_dim; y++) {
-        for(int x = 0; x < layer.parameters.x_dim; x++) {    
-            set_matrix(layer.parameters, x, y, ((FLOAT) rand() / (FLOAT) RAND_MAX) * 2.f * range - range);
+void glorot_initialization(Layer *layer) {
+    FLOAT range = (FLOAT) sqrt(6.f / (FLOAT) (layer->parameters.x_dim + layer->parameters.y_dim));
+    layer->min_param = - 5.f * range;
+    layer->max_param = 5.f * range;
+    for(int y = 0; y < layer->parameters.y_dim; y++) {
+        for(int x = 0; x < layer->parameters.x_dim; x++) {    
+            set_matrix(layer->parameters, x, y, ((FLOAT) rand() / (FLOAT) RAND_MAX) * 2.f * range - range);
         }
     }
 }
@@ -65,6 +74,8 @@ void glorot_initialization(Layer layer) {
 void init_layer(Layer *layer, int x_dim, int y_dim){
     init_matrix(&(layer->parameters), x_dim + 1, y_dim);
     init_matrix(&(layer->gradients), x_dim + 1, y_dim);
+    init_matrix(&(layer->fst_momentum), x_dim + 1, y_dim);
+    init_matrix(&(layer->snd_momentum), x_dim + 1, y_dim);
     layer->inner_potential_derivative.data = NULL;
     layer->input.data = NULL;
 }
@@ -73,22 +84,31 @@ void init_layer(Layer *layer, int x_dim, int y_dim){
 void delete_layer(Layer layer) {
     delete_matrix(layer.parameters);
     delete_matrix(layer.gradients);
+    delete_matrix(layer.fst_momentum);
+    delete_matrix(layer.snd_momentum);
 }
 
 
 Vector softmax(Vector vec) {
     Vector new;
     init_vector(&new, vec.x_dim);
+
+    FLOAT max_val = -INFINITY;
+    for (int x = 0; x < vec.x_dim; x++) {
+        max_val = (FLOAT) fmax((double) max_val, (double) get_vector(vec, x));
+    }
+
     FLOAT sm = 0.f;
     for (int x = 0; x < vec.x_dim; x++) {
-        FLOAT val = (FLOAT) exp(get_vector(vec, x));
-        // printf("%f %f\n", val, get_vector(vec, x));
+        FLOAT val = (FLOAT) exp(get_vector(vec, x) - max_val);
         set_vector(new, x, val);
         sm += val;
     }
+
     for (int x = 0; x < vec.x_dim; x++) {
         set_vector(new, x, get_vector(new, x) / sm);
     }
+
     return new;
 }
 
@@ -96,7 +116,7 @@ Vector softmax(Vector vec) {
 FLOAT cross_entropy(Vector vec, Vector target) {
     FLOAT error = 0.f;
     for (int x=0; x < vec.x_dim; x++) {
-        error -= (FLOAT) log(get_vector(vec, x)) * get_vector(target, x);
+        error -= (FLOAT) log((FLOAT) fmax(0.01f, get_vector(vec, x))) * get_vector(target, x);
     }
     return error;
 }
@@ -110,24 +130,7 @@ Vector relu(Vector vec) {
         FLOAT val = get_vector(vec, x);
         set_vector(new, x, (0 <= val) ? val : 0);
     } 
-
     return new;
-}
-
-
-void normalize(Vector vec) {
-    FLOAT sum = 0.f;
-    FLOAT squares = 0.f;
-    for (int x = 0; x<vec.x_dim; x++) {
-        sum += get_vector(vec, x);
-        squares += get_vector(vec, x) * get_vector(vec, x);
-    }
-    FLOAT mean = sum / (FLOAT) vec.x_dim;
-    FLOAT std = (FLOAT) sqrt(squares /  (FLOAT) vec.x_dim - mean * mean);
-    for (int x = 0; x<vec.x_dim; x++) {
-        FLOAT val = (get_vector(vec, x) - mean) / std;
-        set_vector(vec, x, val);
-    }
 }
 
 
@@ -146,7 +149,6 @@ Vector matmul(Matrix mat, Vector vec) {
         }
         set_vector(new, y, sm);
     }
-    // normalize(new);
     return new;
 }
 
@@ -189,6 +191,7 @@ Output ces_layer_forward(Layer *layer, Vector *target, Vector input, bool grad) 
     } else {
         delete_vector(input);
     }
+    delete_vector(*target);
     return out;
 }
 
@@ -213,23 +216,15 @@ void init_model(Model *model, int *hidden, int n_hidden, int n_classes, unsigned
     srand(seed);
     for (int i=0;i<n_hidden-1;i++) {
         init_layer(&(model->layers[i]), hidden[i], hidden[i+1]);
-        HE_initialization(model->layers[i]);
+        HE_initialization(&(model->layers[i]));
     }
     init_layer(&(model->layers[n_hidden-1]), hidden[n_hidden-1], n_classes);
-    glorot_initialization(model->layers[n_hidden-1]);
+    glorot_initialization(&(model->layers[n_hidden-1]));
 }
 
 
 void delete_model(Model model) {
     for (int i=0;i<model.n_layers;i++) {
-        // ASSERT(
-        //     model.layers[i].inner_potential_derivative.data == NULL,
-        //     "ERROR2.\n"
-        // );
-        // ASSERT(
-        //     model.layers[i].input.data == NULL,
-        //     "ERROR1.\n"
-        // );
         delete_layer(model.layers[i]);
     }
     FREE(model.layers);
@@ -244,40 +239,77 @@ void zero_grad(Model model) {
 }
 
 
-void optimize(Model model, float lr, int batch_size) {
+FLOAT fclip(FLOAT val, FLOAT min, FLOAT max) {
+    if (!(min < val)) {
+        return min;
+    }
+    if (!(val < max)) {
+        return max;
+    }
+    return val;
+}
+
+
+void optimize_adam(Model model, FLOAT lr, FLOAT beta1, FLOAT beta2, int batch_size) {
+    UNUSED(batch_size);
     for (int i=0; i<model.n_layers;i++) {
         Matrix grads = model.layers[i].gradients;
         Matrix params = model.layers[i].parameters;
+        Matrix fst_moments = model.layers[i].fst_momentum;
+        Matrix snd_moments = model.layers[i].snd_momentum;
+        FLOAT min = model.layers[i].min_param;
+        FLOAT max = model.layers[i].max_param;
         for (int y=0; y<params.y_dim; y++) {
             for (int x=0; x< params.x_dim; x++) {
-                FLOAT val = - lr * get_matrix(grads, x, y) /  (FLOAT) batch_size;
-                add_matrix(params, x, y, val);
+                FLOAT param = get_matrix(params, x, y);
+                FLOAT grad = get_matrix(grads, x, y);
+                FLOAT fst_moment = get_matrix(fst_moments, x, y);
+                FLOAT snd_moment = get_matrix(snd_moments, x, y);
+                fst_moment = beta1 * fst_moment + (1 - beta1) * grad;
+                snd_moment = beta2 * snd_moment + (1 - beta2) * grad * grad;
+                set_matrix(fst_moments, x, y, fclip(fst_moment, -1.f, 1.f));
+                set_matrix(snd_moments, x, y, fclip(snd_moment, 0.0f, 1.f));
+                FLOAT m = fst_moment / (1 - beta1);
+                FLOAT v = snd_moment / (1 - beta2);
+                param -= lr * m / (FLOAT) sqrt(v + 0.001f);
+                set_matrix(params, x, y, fclip(param, min, max));
             }
         }
     }
 }
 
 
-void backprop(Model model) {
-    Layer last = model.layers[model.n_layers-1];
+FLOAT interpolate(FLOAT x1, FLOAT y1, FLOAT x2, FLOAT y2, FLOAT t) {
+    return y1 + (y2 - y1) / (x2 - x1) * (t - x1);
+}
+
+
+FLOAT scheduler(int epoch, int max_epochs, FLOAT lr1, FLOAT lr2) {
+    return interpolate((FLOAT) 0, lr1, (FLOAT) max_epochs, lr2, (FLOAT) epoch);
+}
+
+
+void backprop(Model model, int batch_size) {
     Vector temp1;
     Vector temp2;
 
+    Layer last = model.layers[model.n_layers-1];
+
+    init_vector(&temp2, last.parameters.y_dim);
+    for (int y=0; y<last.parameters.y_dim; y++) {
+        set_vector(temp2, y, 1.0f / (FLOAT) batch_size);
+    }
+
     for (int y=0; y<last.parameters.y_dim;y++) {
         FLOAT val = get_vector(last.inner_potential_derivative, y);
+        val *= get_vector(temp2, y);
         add_matrix(last.gradients, 0, y, val);
         for (int x=1;x<last.parameters.x_dim;x++) {
             add_matrix(last.gradients, x, y, val * get_vector(last.input, x-1));
         }
     }
     
-    init_vector(&temp2, last.parameters.y_dim);
-    for (int y=0; y<last.parameters.y_dim; y++) {
-        set_vector(temp2, y, 1.0);
-    }
-
     for (int i=model.n_layers-2; 0<=i;i--) {
-        
         Layer layer1 = model.layers[i];
         Layer layer2 = model.layers[i+1];
 
@@ -300,13 +332,14 @@ void backprop(Model model) {
         }
         
         delete_vector(temp2);
-        delete_vector(layer2.input);
-        delete_vector(layer2.inner_potential_derivative);
         temp2 = temp1;
     }
     delete_vector(temp1);
-    delete_vector(model.layers[0].input);
-    delete_vector(model.layers[0].inner_potential_derivative);
+
+    for (int i=0; i<model.n_layers;i++) {
+        delete_vector(model.layers[i].input);
+        delete_vector(model.layers[i].inner_potential_derivative);
+    }
 }
 
 
