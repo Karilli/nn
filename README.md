@@ -1,5 +1,8 @@
-Jaroslav Pospíšek (514554) and Josef Karas (511737) --- put your UČOs (and names) on this line (no exact format required)
 ## PV021 project -- Deep Learning from Scratch
+This is a project from my studies at MUNI. It was done in collaboration with Jaroslav Pospíšek (pospisek.j@seznam.cz). The following id the assignement description. For our notes on the implementation look into README.md in the src folder.
+
+To run the project, you will need the data, the ziped `data.zip` folder can be found in assets of release v1.0.0, unzip it and place in the root of the project.
+
 
 ### DEADLINE
 Sunday 8. 12. 2024 23:59 (December 8th)
